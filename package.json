@@ -18,6 +18,9 @@
     "google-auth-library": "^10.6.2",
     "mongoose": "^9.5.0"
   },
+  "overrides": {
+    "gcp-metadata": "^8.1.2"
+  },
   "devDependencies": {
     "nodemon": "^3.1.14"
   }
