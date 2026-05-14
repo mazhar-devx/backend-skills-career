@@ -16,7 +16,8 @@ const connectDB = async () => {
     }
 
     const opts = {
-      bufferCommands: false,
+      // Removed bufferCommands: false to allow Mongoose to buffer if connection is slightly delayed
+      // but the middleware will still ensure connection is ready
     };
 
     cachedConnection = await mongoose.connect(uri, opts);

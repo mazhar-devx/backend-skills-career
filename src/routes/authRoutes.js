@@ -79,6 +79,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Login Error:", error);
     return res.status(500).json({ message: "Failed to login", error: error.message });
   }
 });
@@ -140,6 +141,7 @@ router.post("/google", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Google Auth Error:", error);
     return res.status(500).json({ message: "Google authentication failed", error: error.message });
   }
 });
