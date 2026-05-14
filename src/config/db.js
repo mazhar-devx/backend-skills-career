@@ -1,19 +1,34 @@
 import mongoose from "mongoose";
 
+let cachedConnection = null;
+
 const connectDB = async () => {
+  if (cachedConnection) {
+    console.log("Using cached MongoDB connection");
+    return cachedConnection;
+  }
+
   try {
     const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
     if (!uri) {
       console.error("CRITICAL ERROR: MONGO_URI is undefined!");
-      console.error("Available environment variable keys:", Object.keys(process.env).join(", "));
-      throw new Error("MONGO_URI environment variable is missing. Please check Railway Variables and make sure the name has NO spaces (e.g. not 'MONGO_URI ').");
+      throw new Error("MONGO_URI environment variable is missing.");
     }
-    await mongoose.connect(uri);
+
+    const opts = {
+      bufferCommands: false,
+    };
+
+    cachedConnection = await mongoose.connect(uri, opts);
     console.log("MongoDB Connected 🔥");
+    return cachedConnection;
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
+    // In serverless, we don't want to exit the process
+    // Let the error bubble up so Vercel can handle it
+    throw error;
   }
 };
 
 export default connectDB;
+
