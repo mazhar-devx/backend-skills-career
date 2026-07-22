@@ -32,14 +32,31 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    banner: {
+      type: String,
+      default: "",
+    },
+    phone: {
+      type: String,
+      default: "",
+    },
     description: {
       type: String,
       default: "",
     },
     role: {
       type: String,
-      enum: ["student", "admin"],
-      default: "student",
+      default: "Full Stack Developer",
+    },
+    skills: {
+      type: [String],
+      default: [],
+    },
+    socials: {
+      github: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      portfolio: { type: String, default: "" },
+      twitter: { type: String, default: "" },
     },
     emailVerified: {
       type: Boolean,

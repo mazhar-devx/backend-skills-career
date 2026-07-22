@@ -74,7 +74,12 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-        role: user.role,
+        banner: user.banner || "",
+        phone: user.phone || "",
+        role: user.role || "Full Stack Developer",
+        description: user.description || "",
+        skills: user.skills || [],
+        socials: user.socials || {},
         studentDetails: user.studentDetails,
       },
     });
@@ -136,7 +141,12 @@ router.post("/google", async (req, res) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-        role: user.role,
+        banner: user.banner || "",
+        phone: user.phone || "",
+        role: user.role || "Full Stack Developer",
+        description: user.description || "",
+        skills: user.skills || [],
+        socials: user.socials || {},
         studentDetails: user.studentDetails,
       },
     });
@@ -154,7 +164,13 @@ router.get("/users", async (req, res) => {
         id: user._id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
+        avatar: user.avatar || "",
+        banner: user.banner || "",
+        phone: user.phone || "",
+        role: user.role || "Full Stack Developer",
+        description: user.description || "",
+        skills: user.skills || [],
+        socials: user.socials || {},
         isApproved: user.isApproved,
         studentDetails: user.studentDetails,
         createdAt: user.createdAt,
@@ -167,13 +183,15 @@ router.get("/users", async (req, res) => {
 
 router.put("/users/:id", async (req, res) => {
   try {
-    const { isApproved, studentDetails } = req.body;
+    const { isApproved, role, phone, studentDetails } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     if (isApproved !== undefined) user.isApproved = isApproved;
+    if (role !== undefined) user.role = role;
+    if (phone !== undefined) user.phone = phone;
     if (studentDetails !== undefined) user.studentDetails = studentDetails;
 
     await user.save();
@@ -186,15 +204,28 @@ router.put("/users/:id", async (req, res) => {
 // Student self-update profile
 router.put("/profile/:id", async (req, res) => {
   try {
-    const { name, avatar, description } = req.body;
+    const { name, avatar, banner, phone, role, description, skills, socials, oldPassword, newPassword } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Password change verification
+    if (newPassword) {
+      if (user.password && user.password !== oldPassword) {
+        return res.status(400).json({ message: "Old password does not match. Please enter your correct current password." });
+      }
+      user.password = newPassword;
+    }
+
     if (name !== undefined) user.name = name;
     if (avatar !== undefined) user.avatar = avatar;
+    if (banner !== undefined) user.banner = banner;
+    if (phone !== undefined) user.phone = phone;
+    if (role !== undefined) user.role = role;
     if (description !== undefined) user.description = description;
+    if (skills !== undefined) user.skills = skills;
+    if (socials !== undefined) user.socials = socials;
 
     await user.save();
     res.json({
@@ -203,8 +234,12 @@ router.put("/profile/:id", async (req, res) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
+        banner: user.banner,
+        phone: user.phone,
         role: user.role,
         description: user.description,
+        skills: user.skills,
+        socials: user.socials,
         studentDetails: user.studentDetails,
       },
     });
@@ -221,12 +256,17 @@ router.get("/public-users/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Only return safe public data
+    // Return safe public profile data for Google Search Console indexing
     res.json({
       id: user._id.toString(),
       name: user.name,
       avatar: user.avatar,
-      description: user.description || "A student at Skills Career.",
+      banner: user.banner,
+      phone: user.phone,
+      role: user.role || "Full Stack Developer",
+      description: user.description || "A student developer at Skills Career.",
+      skills: user.skills || [],
+      socials: user.socials || {},
       createdAt: user.createdAt,
     });
   } catch (error) {
