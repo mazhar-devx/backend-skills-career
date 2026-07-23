@@ -183,7 +183,7 @@ router.get("/users", async (req, res) => {
 
 router.put("/users/:id", async (req, res) => {
   try {
-    const { isApproved, role, phone, studentDetails } = req.body;
+    const { isApproved, role, phone, studentDetails, name, email } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -192,6 +192,8 @@ router.put("/users/:id", async (req, res) => {
     if (isApproved !== undefined) user.isApproved = isApproved;
     if (role !== undefined) user.role = role;
     if (phone !== undefined) user.phone = phone;
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email.toLowerCase().trim();
     if (studentDetails !== undefined) user.studentDetails = studentDetails;
 
     await user.save();
@@ -200,6 +202,19 @@ router.put("/users/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to update user", error: error.message });
   }
 });
+
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete user", error: error.message });
+  }
+});
+
 
 // Student self-update profile
 router.put("/profile/:id", async (req, res) => {

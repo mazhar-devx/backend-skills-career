@@ -11,8 +11,10 @@ router.get("/:collection", async (req, res) => {
     let query = { collectionName: collection };
     if (userId) {
       query.$or = [
-        { assignedTo: userId }, // If user is in the assigned array
-        { assignedTo: { $size: 0 } }, // Or if it's assigned to everyone (empty array)
+        { assignedTo: userId },
+        { assignedTo: { $size: 0 } },
+        { assignedTo: { $exists: false } },
+        { assignedTo: null }
       ];
     }
 
