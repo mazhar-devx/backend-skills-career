@@ -77,6 +77,7 @@ router.post("/login", async (req, res) => {
         banner: user.banner || "",
         phone: user.phone || "",
         role: user.role || "Full Stack Developer",
+        level: user.level || 1,
         description: user.description || "",
         skills: user.skills || [],
         socials: user.socials || {},
@@ -219,7 +220,7 @@ router.delete("/users/:id", async (req, res) => {
 // Student self-update profile
 router.put("/profile/:id", async (req, res) => {
   try {
-    const { name, avatar, banner, phone, role, description, skills, socials, oldPassword, newPassword } = req.body;
+    const { name, avatar, banner, phone, role, level, description, skills, socials, oldPassword, newPassword } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -238,6 +239,7 @@ router.put("/profile/:id", async (req, res) => {
     if (banner !== undefined) user.banner = banner;
     if (phone !== undefined) user.phone = phone;
     if (role !== undefined) user.role = role;
+    if (level !== undefined) user.level = level;
     if (description !== undefined) user.description = description;
     if (skills !== undefined) user.skills = skills;
     if (socials !== undefined) user.socials = socials;
@@ -252,6 +254,7 @@ router.put("/profile/:id", async (req, res) => {
         banner: user.banner,
         phone: user.phone,
         role: user.role,
+        level: user.level || 1,
         description: user.description,
         skills: user.skills,
         socials: user.socials,

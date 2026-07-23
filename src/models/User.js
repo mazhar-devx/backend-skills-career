@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "Full Stack Developer",
     },
+    level: {
+      type: Number,
+      default: 1,
+    },
     skills: {
       type: [String],
       default: [],
