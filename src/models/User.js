@@ -20,10 +20,15 @@ const userSchema = new mongoose.Schema(
     },
     provider: {
       type: String,
-      enum: ["local", "google"],
+      enum: ["local", "google", "github"],
       default: "local",
     },
     googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    githubId: {
       type: String,
       unique: true,
       sparse: true,

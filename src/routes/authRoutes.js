@@ -157,6 +157,57 @@ router.post("/google", async (req, res) => {
   }
 });
 
+router.post("/github", async (req, res) => {
+  try {
+    const { githubId, name, email, avatar, username } = req.body;
+    if (!githubId && !email) {
+      return res.status(400).json({ message: "GitHub account details are required" });
+    }
+
+    const normalizedEmail = (email || `${username || githubId}@github.com`).toLowerCase().trim();
+    let user = await User.findOne({ $or: [{ githubId }, { email: normalizedEmail }] });
+
+    if (!user) {
+      user = await User.create({
+        name: name || username || "GitHub Developer",
+        email: normalizedEmail,
+        avatar: avatar || `https://avatars.githubusercontent.com/u/${githubId}`,
+        provider: "github",
+        githubId: String(githubId),
+        emailVerified: true,
+        isApproved: true,
+        level: 1,
+      });
+    } else {
+      user.name = name || user.name;
+      user.avatar = avatar || user.avatar;
+      user.provider = "github";
+      if (githubId) user.githubId = String(githubId);
+      await user.save();
+    }
+
+    return res.json({
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        banner: user.banner || "",
+        phone: user.phone || "",
+        role: user.role || "Full Stack Developer",
+        level: Number(user.level) || 1,
+        description: user.description || "",
+        skills: user.skills || [],
+        socials: user.socials || {},
+        studentDetails: user.studentDetails,
+      },
+    });
+  } catch (error) {
+    console.error("GitHub Auth Error:", error);
+    return res.status(500).json({ message: "GitHub authentication failed", error: error.message });
+  }
+});
+
 router.get("/users", async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
@@ -169,6 +220,7 @@ router.get("/users", async (req, res) => {
         banner: user.banner || "",
         phone: user.phone || "",
         role: user.role || "Full Stack Developer",
+        level: Number(user.level) || 1,
         description: user.description || "",
         skills: user.skills || [],
         socials: user.socials || {},
@@ -184,7 +236,7 @@ router.get("/users", async (req, res) => {
 
 router.put("/users/:id", async (req, res) => {
   try {
-    const { isApproved, role, phone, studentDetails, name, email } = req.body;
+    const { isApproved, role, phone, studentDetails, name, email, level } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -195,6 +247,7 @@ router.put("/users/:id", async (req, res) => {
     if (phone !== undefined) user.phone = phone;
     if (name !== undefined) user.name = name;
     if (email !== undefined) user.email = email.toLowerCase().trim();
+    if (level !== undefined) user.level = Number(level);
     if (studentDetails !== undefined) user.studentDetails = studentDetails;
 
     await user.save();
